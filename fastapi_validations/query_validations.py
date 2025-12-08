@@ -12,6 +12,12 @@ from typing import Annotated
 # lt less than
 # le less than or equal
 
+#------- validaciones con MATADATA -----------------#
+# title
+# description
+# alias
+# deprecated
+
 app = FastAPI()
 
 
@@ -29,9 +35,22 @@ app = FastAPI()
 # 		results.update({"q": q})
 #     return results		
 
+# @app.get('/items')
+# async def read_items(q: Annotated[list[str] | None, Query(gt=3)] = None):
+# 	results: dict = {"message": "Acesso a get(read_items)"}
+# 	if q:
+# 		results.update({"q": q})
+# 	return results    		
+
 @app.get('/items')
-async def read_items(q: Annotated[list[str] | None, Query(gt=3)] = None):
-	results: dict = {"message": "Acesso a get(read_items)"}
+async def read_items(q: Annotated [int | None, Query(gt=4, 
+                                                     title="Query",
+                                                     description="what_you_gonna_look", 
+                                                     alias="busqueda-item",
+                                                     deprecated="True")
+                                   ] = None):
+	results: dict = {"message": "Acesso a get(read_items)",
+                     "q": q}
 	if q:
 		results.update({"q": q})
-	return results    		
+	return results  
