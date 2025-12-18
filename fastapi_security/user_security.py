@@ -54,7 +54,15 @@ def fake_decode_token(token: str) -> UserInDB | None:
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     user = fake_decode_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Credenciales invalidas")
     return user
+
+
+async def get_current_active_user(current_user: Annotated[UserInDB, Depends(get_current_user)]):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
 
 
 @app.post("/token")
@@ -70,7 +78,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 
 @app.get("/users/me")
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
+async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
 
 
